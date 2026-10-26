@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#272725">
+  <meta name="description" content="Explore Suzan Al-Sadoun’s graphic design portfolio: visual identities, logos, print, social media and photography.">
+  <title>Suzan Al-Sadoun — Graphic Designer</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#branding">Skip to selected work</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <main id="portfolio" aria-label="Suzan Al-Sadoun portfolio">
+    <h1 class="sr-only">Suzan Al-Sadoun — Graphic Designer</h1>
+    <!--PORTFOLIO-->
+  </main>
+  <div class="intro-tip" role="status">Move over the shapes. Click an image to explore. <button aria-label="Dismiss tip">×</button></div>
+  <nav class="dock" aria-label="Portfolio sections">
+    <a class="dock-home" href="#home" aria-label="Back to the beginning"><svg viewBox="0 0 40 40" aria-hidden="true"><path fill="currentColor" d="m20 0 3 12 9-8-5 12 13-1-11 7 9 9-12-3-1 12-6-11-9 9 2-13L0 24l11-6-8-9 12 4Z"/></svg></a>
+    <button class="mobile-menu" aria-expanded="false" aria-controls="section-links"><span id="current-section">Portfolio</span><span aria-hidden="true">⌃</span></button>
+    <div class="section-links" id="section-links">
+      <a href="#branding">Branding</a><a href="#logos">Logofolio</a><a href="#print">Print</a><a href="#social">Social</a><a href="#variety">Variety</a><a href="#photography">Photography</a>
+    </div>
+    <span class="dock-divider" aria-hidden="true"></span>
+    <button id="motion-toggle" class="icon-button" aria-label="Pause motion" aria-pressed="false" title="Pause motion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button>
+    <a class="icon-button" href="assets/Suzan-Al-Sadoun-Portfolio.pdf" download aria-label="Download original portfolio PDF" title="Download PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg></a>
+    <a class="contact-link" href="mailto:Suzanalsadoun@gmail.com">Let’s talk <span aria-hidden="true">↗</span></a>
+  </nav>
+  <dialog id="gallery-dialog" aria-label="Artwork viewer">
+    <div class="viewer-top"><div><span class="eyebrow">SUZAN AL-SADOUN / SELECTED WORK</span><h2 id="art-title"></h2></div><button id="close-viewer" class="viewer-button" aria-label="Close viewer">×</button></div>
+    <div class="viewer-stage"><button id="previous-art" class="viewer-button previous" aria-label="Previous artwork">←</button><div id="viewer-image"></div><button id="next-art" class="viewer-button next" aria-label="Next artwork">→</button></div>
+    <div class="viewer-bottom"><span id="art-count" aria-live="polite"></span><span>← → to explore · Esc to close</span></div>
+  </dialog>
+  <script id="gallery-data" type="application/json">/*GALLERY_DATA*/</script>
+  <script src="app.js"></script>
+</body>
+</html>
