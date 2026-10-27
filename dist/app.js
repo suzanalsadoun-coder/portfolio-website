@@ -18,13 +18,41 @@ for(const node of [...artworkNodes,...shapeNodes]){
   const motion=node.querySelector('.motion-layer');
   motion.style.transformBox='view-box';motion.style.transformOrigin=`${(b[0]+b[2])/2}px ${(b[1]+b[3])/2}px`;
   const spot=document.createComment('original artwork position');node.before(spot);
-  node.addEventListener('pointerenter',e=>{if(e.pointerType==='touch'||paused)return;clearTimeout(node._restore);for(const other of [...artworkNodes,...shapeNodes]){if(other!==node)other.classList.remove('is-hovered')}node.classList.remove('reveal-once');if(node.parentElement.lastElementChild!==node)node.parentElement.append(node);node.classList.add('is-hovered')});
+  node.addEventListener('pointerenter',e=>{if(e.pointerType==='touch'||paused)return;clearTimeout(node._restore);for(const other of [...artworkNodes,...shapeNodes]){if(other!==node)other.classList.remove('is-hovered')}node.classList.remove('reveal-once');if(node.classList.contains('artwork')&&node.parentElement.lastElementChild!==node)node.parentElement.append(node);node.classList.add('is-hovered')});
   node.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||paused)return;const box=node.getBoundingClientRect(),x=(e.clientX-box.left)/box.width-.5,y=(e.clientY-box.top)/box.height-.5;const shape=node.classList.contains('floating-shape');node.style.setProperty('--mx',`${x*(shape?36:8)}px`);node.style.setProperty('--my',`${y*(shape?28:6)}px`);node.style.setProperty('--tilt',`${x*(shape?15:1.8)}deg`)});
   const reset=()=>{node.classList.remove('is-hovered');node.style.setProperty('--mx','0px');node.style.setProperty('--my','0px');node.style.setProperty('--tilt','0deg');clearTimeout(node._restore);node._restore=setTimeout(()=>{if(!node.classList.contains('is-hovered'))spot.after(node)},700)};
   node.addEventListener('pointerleave',reset);
   // Reparenting during mousedown/focus cancels the subsequent native click.
   node.addEventListener('blur',reset);
 }
+
+// Keep the original vector logos together, including every Arabic and English detail.
+// Bounds are in the first PDF page's original coordinate system.
+const brandLogoRegions=[
+  {name:'Kunafa',id:'kunafa',bounds:[190,3860,505,4115],from:'translateY(15px) rotate(-4deg) scale(.94)'},
+  {name:'Enmaa',id:'enmaa',bounds:[245,5540,435,5790],from:'translateY(24px) scale(.97)'},
+  {name:'Misk Fashion',id:'misk',bounds:[170,6920,495,7080],from:'translateX(-22px) scale(.97)'},
+  {name:'Evar Holding',id:'evar',bounds:[160,8500,515,8640],from:'translateY(10px) scale(.9)'}
+];
+const brandingSvg=document.querySelector('.portfolio-art');
+const brandingContent=brandingSvg.querySelector(':scope > g');
+const svgRect=brandingSvg.getBoundingClientRect();
+const svgWidth=Number(brandingSvg.getAttribute('viewBox').split(/\s+/)[2]);
+const coordinateScale=svgWidth/svgRect.width;
+const logoCandidates=[...brandingContent.querySelectorAll('path,use')];
+const brandLogoNodes=[];
+for(const brand of brandLogoRegions){
+  const [x0,y0,x1,y1]=brand.bounds;
+  const parts=logoCandidates.filter(part=>{const r=part.getBoundingClientRect();const x=(r.left-svgRect.left)*coordinateScale,y=(r.top-svgRect.top)*coordinateScale;return r.width>0&&r.height>0&&x>=x0&&y>=y0&&x+r.width*coordinateScale<=x1&&y+r.height*coordinateScale<=y1});
+  const parents=[...new Set(parts.map(part=>part.parentElement))];
+  for(const parent of parents){
+    const siblings=parts.filter(part=>part.parentElement===parent);
+    const group=document.createElementNS(svgNS,'g');group.classList.add('brand-logo');group.dataset.brand=brand.id;group.setAttribute('role','img');group.setAttribute('aria-label',brand.name+' logo');
+    const motion=document.createElementNS(svgNS,'g');motion.classList.add('logo-motion');motion.style.setProperty('--logo-from',brand.from);motion.style.transformBox='view-box';motion.style.transformOrigin=`${(x0+x1)/2}px ${(y0+y1)/2}px`;
+    parent.insertBefore(group,siblings[0]);group.append(motion);for(const part of siblings)motion.append(part);brandLogoNodes.push(group);
+  }
+}
+if('IntersectionObserver' in window){const logosObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){entry.target.classList.add('logo-revealed');logosObserver.unobserve(entry.target)}}},{threshold:.25,rootMargin:'0px 0px -8% 0px'});for(const logo of brandLogoNodes)logosObserver.observe(logo)}else{for(const logo of brandLogoNodes)logo.classList.add('logo-revealed')}
 
 const dialog=document.querySelector('#gallery-dialog');
 const stage=document.querySelector('#viewer-image');
