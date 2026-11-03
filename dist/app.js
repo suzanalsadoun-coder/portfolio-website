@@ -2,7 +2,7 @@ const galleryData=JSON.parse(document.querySelector('#gallery-data').textContent
 const artworkNodes=[...document.querySelectorAll('.artwork')];
 const shapeNodes=[...document.querySelectorAll('.floating-shape')];
 // Only the decorative artwork behind the category titles moves; text remains separate.
-const categoryShapeClips=new Set(['p0-clip_75','p1-clip_26','p1-clip_22','p1b-clip_26','p1b-clip_22','p2-clip_10','p3-clip_53','p3-clip_18']);
+const categoryShapeClips=new Set(['p0-clip_5','p0-clip_75','p1-clip_26','p1-clip_22','p1b-clip_26','p1b-clip_22','p2-clip_10','p3-clip_53','p3-clip_18']);
 for(const shape of shapeNodes){const clip=shape.dataset.sourceClip?.match(/url\(#([^)]*)\)/)?.[1];if(categoryShapeClips.has(clip))shape.classList.add('category-shape')}
 
 const svgNS='http://www.w3.org/2000/svg';
@@ -10,7 +10,21 @@ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
 let paused=reduced.matches;
 try{paused=paused||localStorage.getItem('portfolio-motion')==='paused'}catch{}
 const motionButton=document.querySelector('#motion-toggle');
-function updateMotion(){document.documentElement.classList.toggle('motion-paused',paused);motionButton.setAttribute('aria-pressed',String(paused));motionButton.setAttribute('aria-label',paused?'Resume motion':'Pause motion');motionButton.title=paused?'Resume motion':'Pause motion';motionButton.querySelector('svg').innerHTML=paused?'<path d="m9 5 10 7-10 7Z"/>':'<path d="M9 5v14M15 5v14"/>'}
+function updateMotion(){document.documentElement.classList.toggle('motion-paused',paused);for(const svg of document.querySelectorAll('.portfolio-art')){if(paused)svg.pauseAnimations();else svg.unpauseAnimations()}motionButton.setAttribute('aria-pressed',String(paused));motionButton.setAttribute('aria-label',paused?'Resume motion':'Pause motion');motionButton.title=paused?'Resume motion':'Pause motion';motionButton.querySelector('svg').innerHTML=paused?'<path d="m9 5 10 7-10 7Z"/>':'<path d="M9 5v14M15 5v14"/>'}
+// The wave filter affects only the isolated background shape, never the lettering.
+for(const [index,shape] of shapeNodes.filter(n=>n.classList.contains('category-shape')).entries()){
+ const svg=shape.ownerSVGElement,defs=svg.querySelector('defs'),ns='http://www.w3.org/2000/svg',id=`liquid-wave-${index}`;
+ const filter=document.createElementNS(ns,'filter');for(const [key,value] of Object.entries({id,x:'-18%',y:'-18%',width:'136%',height:'136%'}))filter.setAttribute(key,value);
+ const turbulence=document.createElementNS(ns,'feTurbulence');for(const [key,value] of Object.entries({type:'fractalNoise',baseFrequency:'0.008 0.012',numOctaves:'2',seed:String(index+5),result:'ripples'}))turbulence.setAttribute(key,value);
+ const displacement=document.createElementNS(ns,'feDisplacementMap');for(const [key,value] of Object.entries({in:'SourceGraphic',in2:'ripples',scale:'10',xChannelSelector:'R',yChannelSelector:'G'}))displacement.setAttribute(key,value);
+ const change=document.createElementNS(ns,'animate');for(const [key,value] of Object.entries({attributeName:'scale',values:'6;28;10;25;6',dur:'14s',repeatCount:'indefinite'}))change.setAttribute(key,value);
+ displacement.append(change);filter.append(turbulence,displacement);defs.append(filter);shape.querySelector('.motion-layer').style.filter=`url(#${id})`;
+}
+// Isolate each star path so its overlaid text stays perfectly still.
+for(const path of document.querySelectorAll('.portfolio-art path[fill="#44a5a2"]')){
+ const d=path.getAttribute('d')||'';if(d.length<390||!/^M0 0 [0-9]/.test(d))continue;
+ const group=document.createElementNS('http://www.w3.org/2000/svg','g');group.classList.add('rotating-star');path.before(group);group.append(path);
+}
 updateMotion();motionButton.addEventListener('click',()=>{paused=!paused;updateMotion();try{localStorage.setItem('portfolio-motion',paused?'paused':'on')}catch{}});
 
 // Use the actual PDF clipping bounds, so cropped mockups pivot about their visible centre.
