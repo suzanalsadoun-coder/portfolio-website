@@ -28,12 +28,7 @@ for(const node of [...artworkNodes,...shapeNodes]){
 
 // Keep the original vector logos together, including every Arabic and English detail.
 // Bounds are in the first PDF page's original coordinate system.
-const brandLogoRegions=[
-  {name:'Kunafa',id:'kunafa',bounds:[190,3860,505,4115],from:'translateY(15px) rotate(-4deg) scale(.94)'},
-  {name:'Enmaa',id:'enmaa',bounds:[245,5540,435,5790],from:'translateY(24px) scale(.97)'},
-  {name:'Misk Fashion',id:'misk',bounds:[170,6920,495,7080],from:'translateX(-22px) scale(.97)'},
-  {name:'Evar Holding',id:'evar',bounds:[160,8500,515,8640],from:'translateY(10px) scale(.9)'}
-];
+const brandLogoRegions=[];
 const brandingSvg=document.querySelector('.portfolio-art');
 const brandingContent=brandingSvg.querySelector(':scope > g');
 const svgRect=brandingSvg.getBoundingClientRect();
@@ -82,10 +77,13 @@ const tip=document.querySelector('.intro-tip');function dismissTip(){tip.classLi
 // Make the original contact block and the small header navigation clickable.
 function addLink(svg,x,y,width,height,url,label){const a=document.createElementNS(svgNS,'a');a.setAttribute('href',url);a.setAttribute('aria-label',label);const rect=document.createElementNS(svgNS,'rect');for(const [key,val] of Object.entries({x,y,width,height,fill:'transparent'}))rect.setAttribute(key,val);a.append(rect);svg.append(a)}
 const firstSvg=document.querySelector('.portfolio-art');
-addLink(firstSvg,80,1980,255,55,'mailto:Suzanalsadoun@gmail.com','Email Suzan Al-Sadoun');
-addLink(firstSvg,80,1925,255,55,'tel:+9647517970834','Call Suzan Al-Sadoun');
-const headerLinks=[['branding',452,110],['logos',562,111],['print',673,109],['social',782,120],['variety',902,112],['photography',1014,125]];
-for(const [id,x,width] of headerLinks)addLink(firstSvg,x,65,width,45,'#'+id,`Go to ${id}`);
+
 
 // Reveal the actual artwork gently; the layout stays at its original PDF coordinates.
 if('IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){if(!paused)entry.target.classList.add('reveal-once');observer.unobserve(entry.target)}}},{threshold:.08});for(const node of artworkNodes)observer.observe(node)}
+
+// The cover opens the Burger King collection; its original logo stays above the rotating work.
+const socialSvg=document.querySelector('[data-page="2"] .portfolio-art');
+const bkAnchor=document.createElementNS(svgNS,'a');bkAnchor.setAttribute('href','burger-king.html');bkAnchor.setAttribute('aria-label','Explore Burger King work');
+const bkHit=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:350,y:1312,width:1214,height:437,rx:52,fill:'transparent'}))bkHit.setAttribute(k,v);bkAnchor.append(bkHit);socialSvg.append(bkAnchor);
+const bkPreview=document.querySelector('#bk-teaser-image');const bkPreviews=['king-selection-01','calendar-11','digital-menu-01','packaging-collection-v2','world-cup-03'];let bkIndex=0;if(!reduced.matches)setInterval(()=>{if(!paused&&!document.hidden){bkIndex=(bkIndex+1)%bkPreviews.length;bkPreview.setAttribute('href',`assets/bk/${bkPreviews[bkIndex]}.webp`)}},4500);
