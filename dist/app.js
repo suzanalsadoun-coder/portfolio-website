@@ -1,6 +1,10 @@
 const galleryData=JSON.parse(document.querySelector('#gallery-data').textContent);
 const artworkNodes=[...document.querySelectorAll('.artwork')];
 const shapeNodes=[...document.querySelectorAll('.floating-shape')];
+// Only the decorative artwork behind the category titles moves; text remains separate.
+const categoryShapeClips=new Set(['p0-clip_75','p1-clip_26','p1-clip_22','p1b-clip_26','p1b-clip_22','p2-clip_10','p3-clip_53','p3-clip_18']);
+for(const shape of shapeNodes){const clip=shape.dataset.sourceClip?.match(/url\(#([^)]*)\)/)?.[1];if(categoryShapeClips.has(clip))shape.classList.add('category-shape')}
+
 const svgNS='http://www.w3.org/2000/svg';
 const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
 let paused=reduced.matches;
