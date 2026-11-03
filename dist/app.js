@@ -28,7 +28,12 @@ for(const node of [...artworkNodes,...shapeNodes]){
 
 // Keep the original vector logos together, including every Arabic and English detail.
 // Bounds are in the first PDF page's original coordinate system.
-const brandLogoRegions=[];
+const brandLogoRegions=[
+ {id:'kunafa',name:'Kunafa',bounds:[300,4850,850,5300],from:'translateY(22px) scale(.94)'},
+ {id:'enmaa',name:'Enmaa',bounds:[340,7100,750,7600],from:'translateY(30px) scale(.94)'},
+ {id:'misk',name:'Misk',bounds:[300,8950,850,9400],from:'translateX(-25px)'},
+ {id:'evar',name:'Evar',bounds:[300,11150,850,11650],from:'translateY(22px) scale(.95)'}
+];
 const brandingSvg=document.querySelector('.portfolio-art');
 const brandingContent=brandingSvg.querySelector(':scope > g');
 const svgRect=brandingSvg.getBoundingClientRect();

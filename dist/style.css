@@ -18,3 +18,13 @@ body.motion-paused html{scroll-behavior:auto}.motion-paused .motion-layer,.motio
 .floating-shape{outline:none}
 /* A moving strip keeps the landscape and road still while the fence artwork travels. */
 .fence-feature{background:#f7f2e8;padding:5% 8%;line-height:0}.fence-scene{position:relative;overflow:hidden;width:100%}.fence-background{display:block;width:100%;height:auto}.fence-window{position:absolute;top:58.24%;height:22.19%;left:0;right:0;overflow:hidden}.fence-track{display:flex;width:200%;height:100%;animation:fence-scroll 40s linear infinite}.fence-track img{width:50%;height:100%;object-fit:fill;flex:none}@keyframes fence-scroll{to{transform:translateX(-50%)}}.motion-paused .fence-track{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.fence-track{animation:none}}
+/* The fence photograph spans the entire width of its feature. */
+.fence-feature{padding:0}.fence-sky-light{position:absolute;inset:0 0 47% 0;pointer-events:none;overflow:hidden;mix-blend-mode:screen;animation:sky-cycle 28s ease-in-out infinite}.fence-sky-light:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(242,151,83,.42),rgba(247,185,119,.22) 63%,transparent);animation:sky-color 28s ease-in-out infinite}.fence-sun{position:absolute;top:30%;left:89%;width:clamp(6px,1.4vw,24px);aspect-ratio:1;border-radius:50%;background:#fff1ba;box-shadow:0 0 14px 8px #ffd79b,0 0 70px 28px #f7a85f;animation:sun-journey 28s ease-in-out infinite}
+@keyframes sun-journey{0%{left:92%;top:58%;opacity:.4}16%{top:30%;opacity:.9}50%{top:8%;opacity:.85}84%{top:30%;opacity:.9}100%{left:5%;top:58%;opacity:.4}}
+@keyframes sky-cycle{0%,100%{opacity:.45}30%,70%{opacity:.9}50%{opacity:.75}}
+@keyframes sky-color{0%,100%{filter:hue-rotate(-14deg)}50%{filter:hue-rotate(24deg)}}
+.motion-paused .fence-sky-light,.motion-paused .fence-sky-light:before,.motion-paused .fence-sun{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.fence-sky-light{opacity:.5}}
+/* Logos reveal in a timed, directional build and settle into their final artwork. */
+.brand-logo.logo-revealed .logo-motion{animation:brand-logo-build 1.5s cubic-bezier(.22,1,.36,1) both}
+@keyframes brand-logo-build{0%{opacity:0;clip-path:inset(0 100% 0 0);transform:var(--logo-from)}35%{opacity:1}80%{clip-path:inset(0 0 0 0)}100%{opacity:1;clip-path:inset(0 0 0 0);transform:none}}

@@ -6,7 +6,7 @@ const collections={
 for(const section of document.querySelectorAll('[data-gallery]')){
  const items=collections[section.dataset.gallery],img=section.querySelector('img'),counter=section.querySelector('.counter');let index=0,timer;
  function show(i){index=(i+items.length)%items.length;img.src=`assets/bk/${items[index]}.webp`;counter.textContent=`${String(index+1).padStart(2,'0')} / ${String(items.length).padStart(2,'0')}`;}
- function schedule(){clearInterval(timer);if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>{if(!document.hidden)show(index+1)},5500)}
+ function schedule(){clearInterval(timer);if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>{if(!document.hidden)show(index+1)},2000)}
  section.querySelector('.prev').addEventListener('click',()=>{show(index-1);schedule()});section.querySelector('.next').addEventListener('click',()=>{show(index+1);schedule()});section.addEventListener('mouseenter',()=>clearInterval(timer));section.addEventListener('mouseleave',schedule);section.addEventListener('focusin',()=>clearInterval(timer));section.addEventListener('focusout',schedule);show(0);schedule();
 }
-for(const video of document.querySelectorAll('.videos video')) video.playbackRate=1.3;
+for(const video of document.querySelectorAll('.videos video')) video.playbackRate=1.5;
