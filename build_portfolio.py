@@ -27,8 +27,8 @@ XL = '{http://www.w3.org/1999/xlink}href'
 ns = {'s': S}
 # Image references belong to the November 2026 edition of Portfolio.pdf.
 # They identify background and decorative layers that should not open as work.
-decorative = [{222, 227, 242}, {70, 72}, {101}, {159, 161, 148}]
-backgrounds = [{220, 236, 245, 247, 249, 225, 240, 243}, {52, 54, 64, 66, 68, 29, 39, 49}, {85, 87}, {131, 133, 146}]
+decorative = [{233, 238, 253}, {72, 74}, {103}, {163, 165, 152}]
+backgrounds = [{231, 247, 256, 258, 260, 236, 251, 254}, {54, 56, 66, 68, 70, 31, 41, 51}, {87, 89}, {135, 137, 150}]
 sections = [
     ('home', 'Portfolio', 0, 0),
     ('about', 'About', 0, 1116),
@@ -81,14 +81,15 @@ for n, page in enumerate(doc):
         href = e.get(XL, '')
         if href.startswith('data:'):
             raw = base64.b64decode(href.split(',', 1)[1])
-            ext = 'jpg' if 'image/jpeg' in href[:30] else 'png'
-            name = hashlib.sha256(raw).hexdigest()[:18] + '.' + ext
-            # Browser JPEG decoding does not apply the PDF's CMYK polarity.
-            # Convert such images before exposing them to the SVG.
+            digest = hashlib.sha256(raw).hexdigest()[:18]
             with Image.open(io.BytesIO(raw)) as extracted:
-                if extracted.mode == 'CMYK':
-                    extracted.point(lambda value: 255 - value).convert('RGB').save(ASSETS / name, 'JPEG', quality=92, optimize=True)
+                if extracted.mode in ('RGB', 'CMYK'):
+                    image = extracted.point(lambda value: 255-value).convert('RGB') if extracted.mode == 'CMYK' else extracted.copy()
+                    image.thumbnail((2400, 14000))
+                    name = digest + '.webp'
+                    image.save(ASSETS / name, 'WEBP', quality=89, method=4)
                 else:
+                    name = digest + ('.jpg' if 'image/jpeg' in href[:30] else '.png')
                     (ASSETS / name).write_bytes(raw)
             e.set(XL, 'assets/' + name)
     seen = set()
@@ -183,4 +184,6 @@ template, replaced = re.subn(banner_pattern, banner, template, count=1, flags=re
 assert replaced == 1, 'Burger King cover not found in this PDF'
 (DIST / 'index.html').write_text(template)
 runpy.run_path(str(ROOT / 'insert_fence.py'))
+runpy.run_path(str(ROOT / 'optimize_site.py'))
+runpy.run_path(str(ROOT / 'annotate_lazy.py'))
 print(json.dumps({'pages':len(pages),'interactive_artworks':len(gallery),'raster_assets':len(list(ASSETS.iterdir())),'html_bytes':len(template.encode())}))

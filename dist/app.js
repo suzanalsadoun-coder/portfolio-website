@@ -21,7 +21,7 @@ for(const [index,shape] of shapeNodes.filter(n=>n.classList.contains('category-s
  displacement.append(change);filter.append(turbulence,displacement);defs.append(filter);shape.querySelector('.motion-layer').style.filter=`url(#${id})`;
 }
 // Isolate each star path so its overlaid text stays perfectly still.
-for(const path of document.querySelectorAll('.portfolio-art path[fill="#44a5a2"]')){
+for(const path of document.querySelectorAll('.portfolio-art path[fill="#44a5a2"], .portfolio-art path[fill="#46a3a2"]')){
  const d=path.getAttribute('d')||'';if(d.length<390||!/^M0 0 [0-9]/.test(d))continue;
  const group=document.createElementNS('http://www.w3.org/2000/svg','g');group.classList.add('rotating-star');path.before(group);group.append(path);
 }

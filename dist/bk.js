@@ -9,4 +9,15 @@ for(const section of document.querySelectorAll('[data-gallery]')){
  function schedule(){clearInterval(timer);if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)timer=setInterval(()=>{if(!document.hidden)show(index+1)},2000)}
  section.querySelector('.prev').addEventListener('click',()=>{show(index-1);schedule()});section.querySelector('.next').addEventListener('click',()=>{show(index+1);schedule()});section.addEventListener('mouseenter',()=>clearInterval(timer));section.addEventListener('mouseleave',schedule);section.addEventListener('focusin',()=>clearInterval(timer));section.addEventListener('focusout',schedule);show(0);schedule();
 }
-for(const video of document.querySelectorAll('.videos video')) video.playbackRate=1.5;
+const motionVideos = [...document.querySelectorAll('.videos video')];
+for (const video of motionVideos) video.playbackRate = 1.5;
+if ('IntersectionObserver' in window) {
+ const videoObserver = new IntersectionObserver(entries => {
+  for (const entry of entries) {
+   if (entry.isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) entry.target.play().catch(() => {});
+   else entry.target.pause();
+  }
+ }, {threshold: 0.25});
+ motionVideos.forEach(video => videoObserver.observe(video));
+}
+
