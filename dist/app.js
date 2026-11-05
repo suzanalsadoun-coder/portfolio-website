@@ -118,10 +118,10 @@ if(typewriterSvg){
  for(const [k,v] of Object.entries({x:240,y:9990,width:1400,height:400,fill:'transparent','pointer-events':'none'}))trigger.setAttribute(k,v);
  typewriterSvg.append(trigger);
  const startTyping=()=>{
-  const preload=new Image();preload.src='assets/typewriter-keyboard.webp';
+  const preload=new Image();preload.src='assets/typewriter-highres.png';
   preload.onload=()=>{
    const defs=typewriterSvg.querySelector('defs'),source=document.createElementNS(svgNS,'g');source.id='typewriter-key-source';
-   const sourceImage=document.createElementNS(svgNS,'image');for(const [k,v] of Object.entries({x:240,y:9990,width:1400,height:400,href:'assets/typewriter-keyboard.webp'}))sourceImage.setAttribute(k,v);source.append(sourceImage);defs.append(source);
+   const sourceImage=document.createElementNS(svgNS,'image');for(const [k,v] of Object.entries({x:10.693,y:7822.08,width:1894.614,height:2841.92,href:'assets/typewriter-highres.png'}))sourceImage.setAttribute(k,v);source.append(sourceImage);defs.append(source);
    const layer=document.createElementNS(svgNS,'g');layer.id='typewriter-keys';layer.setAttribute('aria-hidden','true');layer.setAttribute('pointer-events','none');
    const rows=[{y:704,x:[344,454,564,672,781,890,999,1107,1215,1323,1432]},{y:809,x:[303,410,516,624,730,838,946,1055,1163,1271,1380,1491]},{y:910,x:[336,451,560,667,775,883,992,1100,1209,1317,1426,1536]},{y:1006,x:[273,398,508,616,725,833,943,1051,1161,1270,1380,1494]}];
    const keys=[];let i=0;

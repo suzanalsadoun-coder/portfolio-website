@@ -44,3 +44,5 @@ body.motion-paused html{scroll-behavior:auto}.motion-paused .motion-layer,.motio
 @keyframes star-orbit{to{transform:rotate(360deg)}}
 .motion-paused .rotating-star{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){.rotating-star,.category-shape .motion-layer{animation:none!important;transform:none!important}}
+/* A soft blue sky blends into the existing trees; the fence remains untouched. */
+.fence-new-sky{position:absolute;inset:0 0 53% 0;pointer-events:none;background:url('assets/fence-sky-blue.png') center center / 100% 100% no-repeat;mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 100%)}

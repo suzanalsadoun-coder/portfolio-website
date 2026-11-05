@@ -189,6 +189,7 @@ for index, item in enumerate(gallery):
     template = template.replace(f'data-art-key="{item["key"]}"', f'data-gallery="{index}"')
 template = template.replace('/*GALLERY_DATA*/', json.dumps(gallery, ensure_ascii=False))
 template = template.replace('p2-bk-teaser', 'bk-teaser')
+template = template.replace('assets/1118042777feee34e7.webp', 'assets/typewriter-highres.png')
 (DIST / 'index.html').write_text(template)
 runpy.run_path(str(ROOT / 'insert_fence.py'))
 runpy.run_path(str(ROOT / 'optimize_site.py'))
