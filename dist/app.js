@@ -2,7 +2,7 @@ const galleryData=JSON.parse(document.querySelector('#gallery-data').textContent
 const artworkNodes=[...document.querySelectorAll('.artwork')];
 const shapeNodes=[...document.querySelectorAll('.floating-shape')];
 // Only the decorative artwork behind the category titles moves; text remains separate.
-const categoryShapeClips=new Set(['p0-clip_5','p0-clip_75','p1-clip_26','p1-clip_22','p1b-clip_26','p1b-clip_22','p2-clip_10','p3-clip_53','p3-clip_18']);
+const categoryShapeClips=new Set(['p0-clip_9','p0-clip_47','p0-clip_77','p1-clip_26','p1-clip_22','p1b-clip_26','p1b-clip_22','p2-clip_9','p3-clip_53','p3-clip_18','p3-clip_14']);
 for(const shape of shapeNodes){const clip=shape.dataset.sourceClip?.match(/url\(#([^)]*)\)/)?.[1];if(categoryShapeClips.has(clip))shape.classList.add('category-shape')}
 
 const svgNS='http://www.w3.org/2000/svg';
@@ -17,11 +17,11 @@ for(const [index,shape] of shapeNodes.filter(n=>n.classList.contains('category-s
  const filter=document.createElementNS(ns,'filter');for(const [key,value] of Object.entries({id,x:'-18%',y:'-18%',width:'136%',height:'136%'}))filter.setAttribute(key,value);
  const turbulence=document.createElementNS(ns,'feTurbulence');for(const [key,value] of Object.entries({type:'fractalNoise',baseFrequency:'0.008 0.012',numOctaves:'2',seed:String(index+5),result:'ripples'}))turbulence.setAttribute(key,value);
  const displacement=document.createElementNS(ns,'feDisplacementMap');for(const [key,value] of Object.entries({in:'SourceGraphic',in2:'ripples',scale:'10',xChannelSelector:'R',yChannelSelector:'G'}))displacement.setAttribute(key,value);
- const change=document.createElementNS(ns,'animate');for(const [key,value] of Object.entries({attributeName:'scale',values:'6;28;10;25;6',dur:'14s',repeatCount:'indefinite'}))change.setAttribute(key,value);
+ const change=document.createElementNS(ns,'animate');for(const [key,value] of Object.entries({attributeName:'scale',values:'6;28;10;25;6',dur:'10s',repeatCount:'indefinite'}))change.setAttribute(key,value);
  displacement.append(change);filter.append(turbulence,displacement);defs.append(filter);shape.querySelector('.motion-layer').style.filter=`url(#${id})`;
 }
 // Isolate each star path so its overlaid text stays perfectly still.
-for(const path of document.querySelectorAll('.portfolio-art path[fill="#44a5a2"], .portfolio-art path[fill="#46a3a2"]')){
+for(const path of document.querySelectorAll('.portfolio-art path[fill="#44a5a2"], .portfolio-art path[fill="#46a3a2"], .portfolio-art path[fill="#45a2a1"]')){
  const d=path.getAttribute('d')||'';if(d.length<390||!/^M0 0 [0-9]/.test(d))continue;
  const group=document.createElementNS('http://www.w3.org/2000/svg','g');group.classList.add('rotating-star');path.before(group);group.append(path);
 }
@@ -108,5 +108,34 @@ if('IntersectionObserver' in window){const observer=new IntersectionObserver(ent
 // The cover opens the Burger King collection; its original logo stays above the rotating work.
 const socialSvg=document.querySelector('[data-page="2"] .portfolio-art');
 const bkAnchor=document.createElementNS(svgNS,'a');bkAnchor.setAttribute('href','burger-king.html');bkAnchor.setAttribute('aria-label','Explore Burger King work');
-const bkHit=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:350,y:1312,width:1214,height:437,rx:52,fill:'transparent'}))bkHit.setAttribute(k,v);bkAnchor.append(bkHit);socialSvg.append(bkAnchor);
+const bkHit=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:266,y:1240,width:1368,height:490,rx:52,fill:'transparent'}))bkHit.setAttribute(k,v);bkAnchor.append(bkHit);socialSvg.append(bkAnchor);
 const bkPreview=document.querySelector('#bk-teaser-image');const bkPreviews=['king-selection-01','calendar-11','digital-menu-01','packaging-collection-v2','world-cup-03'];let bkIndex=0;if(!reduced.matches)setInterval(()=>{if(!paused&&!document.hidden){bkIndex=(bkIndex+1)%bkPreviews.length;bkPreview.setAttribute('href',`assets/bk/${bkPreviews[bkIndex]}.webp`)}},4500);
+
+// Animate small copies of the actual typewriter keys as if someone is typing.
+const typewriterSvg=document.querySelector('.print-rest .portfolio-art');
+if(typewriterSvg){
+ const trigger=document.createElementNS(svgNS,'rect');
+ for(const [k,v] of Object.entries({x:240,y:9990,width:1400,height:400,fill:'transparent','pointer-events':'none'}))trigger.setAttribute(k,v);
+ typewriterSvg.append(trigger);
+ const startTyping=()=>{
+  const preload=new Image();preload.src='assets/typewriter-keyboard.webp';
+  preload.onload=()=>{
+   const defs=typewriterSvg.querySelector('defs'),source=document.createElementNS(svgNS,'g');source.id='typewriter-key-source';
+   const sourceImage=document.createElementNS(svgNS,'image');for(const [k,v] of Object.entries({x:240,y:9990,width:1400,height:400,href:'assets/typewriter-keyboard.webp'}))sourceImage.setAttribute(k,v);source.append(sourceImage);defs.append(source);
+   const layer=document.createElementNS(svgNS,'g');layer.id='typewriter-keys';layer.setAttribute('aria-hidden','true');layer.setAttribute('pointer-events','none');
+   const rows=[{y:704,x:[344,454,564,672,781,890,999,1107,1215,1323,1432]},{y:809,x:[303,410,516,624,730,838,946,1055,1163,1271,1380,1491]},{y:910,x:[336,451,560,667,775,883,992,1100,1209,1317,1426,1536]},{y:1006,x:[273,398,508,616,725,833,943,1051,1161,1270,1380,1494]}];
+   const keys=[];let i=0;
+   for(const row of rows)for(const x of row.x){
+    const width=(row.y===1006&&(x===273||x===1494))?100:84,y=9300+row.y,id=`typewriter-key-clip-${i++}`;
+    const clip=document.createElementNS(svgNS,'clipPath');clip.id=id;clip.setAttribute('clipPathUnits','userSpaceOnUse');
+    const area=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:x-1,y,width:width+2,height:77,rx:24}))area.setAttribute(k,v);clip.append(area);defs.append(clip);
+    const backing=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:x-1,y,width:width+2,height:77,rx:24,fill:'#111816'}))backing.setAttribute(k,v);layer.append(backing);
+    const key=document.createElementNS(svgNS,'g');key.setAttribute('clip-path',`url(#${id})`);const copy=document.createElementNS(svgNS,'use');copy.setAttribute('href','#typewriter-key-source');key.append(copy);layer.append(key);keys.push(key);
+   }
+   typewriterSvg.append(layer);
+   let active=true;if('IntersectionObserver' in window){const visibility=new IntersectionObserver(entries=>{active=entries[0].isIntersecting},{threshold:0});visibility.observe(trigger);}
+   const tap=()=>{if(active&&!document.hidden&&!paused&&!reduced.matches){const key=keys[Math.floor(Math.random()*keys.length)];key.animate([{transform:'translateY(0px)'},{transform:'translateY(9px)',offset:.48},{transform:'translateY(0px)'}],{duration:260,easing:'ease-in-out'});}setTimeout(tap,320+Math.random()*320)};tap();
+  };
+ };
+ if('IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){observer.disconnect();startTyping()}},{rootMargin:'800px'});observer.observe(trigger)}else startTyping();
+}

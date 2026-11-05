@@ -37,8 +37,8 @@ body.motion-paused html{scroll-behavior:auto}.motion-paused .motion-layer,.motio
 @media(prefers-reduced-motion:reduce){.category-shape .motion-layer{animation:none!important;transform:none!important}}
 
 /* A gentle liquid motion for category shapes; lettering is a separate layer. */
-.category-shape .motion-layer{animation:liquid-drift 14s ease-in-out infinite alternate}
-.category-shape:nth-of-type(even) .motion-layer{animation-duration:16s;animation-delay:-5s}
+.category-shape .motion-layer{animation:liquid-drift 10s ease-in-out infinite alternate}
+.category-shape:nth-of-type(even) .motion-layer{animation-duration:12s;animation-delay:-4s}
 @keyframes liquid-drift{0%{transform:translate(-15px,6px) rotate(-1deg) scale(1,.98) skewX(-1deg)}50%{transform:translate(14px,-10px) rotate(1deg) scale(.97,1.04) skewX(2deg)}100%{transform:translate(-6px,12px) rotate(-.7deg) scale(1.04,.97) skewX(-2deg)}}
 .rotating-star{transform-box:fill-box;transform-origin:center;animation:star-orbit 22s linear infinite}
 @keyframes star-orbit{to{transform:rotate(360deg)}}

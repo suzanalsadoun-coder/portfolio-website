@@ -27,8 +27,8 @@ XL = '{http://www.w3.org/1999/xlink}href'
 ns = {'s': S}
 # Image references belong to the November 2026 edition of Portfolio.pdf.
 # They identify background and decorative layers that should not open as work.
-decorative = [{233, 238, 253}, {72, 74}, {103}, {163, 165, 152}]
-backgrounds = [{231, 247, 256, 258, 260, 236, 251, 254}, {54, 56, 66, 68, 70, 31, 41, 51}, {87, 89}, {135, 137, 150}]
+decorative = [{246, 237, 252}, {70, 72}, {101}, {161, 163, 150}]
+backgrounds = [{230, 232, 255, 257, 259, 261, 235, 250, 253, 208}, {52, 54, 64, 66, 68, 29, 39, 49, 208}, {85, 87}, {133, 135, 148}]
 sections = [
     ('home', 'Portfolio', 0, 0),
     ('about', 'About', 0, 1116),
@@ -102,6 +102,14 @@ for n, page in enumerate(doc):
         while top.getparent() is not content: top = top.getparent()
         if top in seen: continue
         seen.add(top)
+        if n == 2 and xref == 120:
+            cover = ET.Element(f'{{{S}}}g', {'id': 'bk-teaser'})
+            defs = ET.SubElement(cover, f'{{{S}}}defs')
+            clip = ET.SubElement(defs, f'{{{S}}}clipPath', {'id': 'bk-teaser-clip'})
+            ET.SubElement(clip, f'{{{S}}}rect', {'x':'266','y':'1240','width':'1368','height':'490','rx':'52'})
+            ET.SubElement(cover, f'{{{S}}}image', {'id':'bk-teaser-image','x':'266','y':'1240','width':'1368','height':'490','preserveAspectRatio':'xMidYMid slice','clip-path':'url(#bk-teaser-clip)','href':'assets/bk/king-selection-01.webp'})
+            content.replace(top, cover)
+            continue
         is_shape = xref in decorative[n]
         outer = ET.Element(f'{{{S}}}g')
         motion = ET.SubElement(outer, f'{{{S}}}g', {'class': 'motion-layer'})
@@ -136,7 +144,7 @@ for n, page in enumerate(doc):
         else:
             outer.set('aria-hidden', 'true')
     # Isolate turquoise vector stars, keeping their original labels stationary.
-    for e in list(content.xpath('.//s:path[@fill="#46a3a2"]', namespaces=ns)):
+    for e in list(content.xpath('.//s:path[@fill="#46a3a2" or @fill="#45a2a1"]', namespaces=ns)):
         if len(e.get('d', '')) < 150: continue
         parent = e.getparent()
         wrapper = ET.Element(f'{{{S}}}g', {'class': 'vector-star'})
@@ -171,17 +179,16 @@ for page in doc:
     image.save(buffer, format='JPEG', quality=83, optimize=True)
     download_page = download_pdf.new_page(width=page.rect.width, height=page.rect.height)
     download_page.insert_image(download_page.rect, stream=buffer.getvalue())
-download_pdf.save(ASSETS / 'Suzan-Al-Sadoun-Portfolio.pdf', deflate=True)
+download_path = ASSETS / 'Suzan-Al-Sadoun-Portfolio.pdf'
+if download_path.exists(): download_path.unlink()
+download_pdf.save(download_path, deflate=True)
 template = (ROOT / 'shell.html').read_text()
 template = template.replace('<!--PORTFOLIO-->', '\n'.join(pages))
 gallery.sort(key=lambda item:(item['page'], item['y'], item['x']))
 for index, item in enumerate(gallery):
     template = template.replace(f'data-art-key="{item["key"]}"', f'data-gallery="{index}"')
 template = template.replace('/*GALLERY_DATA*/', json.dumps(gallery, ensure_ascii=False))
-banner_pattern = r'<g class="artwork" data-bounds="\[389\.918, 1173\.064.*?</g></g><g clip-path="url\(#p2-clip_138\)">'
-banner = '''<g id="bk-teaser"><defs><clipPath id="bk-teaser-clip"><rect x="350" y="1312" width="1214" height="437" rx="52"/></clipPath></defs><image id="bk-teaser-image" x="350" y="1312" width="1214" height="437" preserveAspectRatio="xMidYMid slice" clip-path="url(#bk-teaser-clip)" href="assets/bk/king-selection-01.webp"/></g><g clip-path="url(#p2-clip_138)">'''
-template, replaced = re.subn(banner_pattern, banner, template, count=1, flags=re.S)
-assert replaced == 1, 'Burger King cover not found in this PDF'
+template = template.replace('p2-bk-teaser', 'bk-teaser')
 (DIST / 'index.html').write_text(template)
 runpy.run_path(str(ROOT / 'insert_fence.py'))
 runpy.run_path(str(ROOT / 'optimize_site.py'))

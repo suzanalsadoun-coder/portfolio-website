@@ -11,5 +11,6 @@ def defer(match):
     return re.sub(r'<image\b[^>]*>',transform,block)
 s=re.sub(r'<section class="portfolio-page".*?</section>',defer,s,flags=re.S)
 s=s.replace('<img class="fence-background"','<img loading="lazy" class="fence-background"').replace('<img src="assets/fence-strip.webp"','<img loading="lazy" src="assets/fence-strip.webp"')
-s=s.replace('<script src="app.js?v=2"></script>','<script src="lazy.js?v=1"></script><script src="app.js?v=3"></script>')
+s=s.replace('<script src="app.js?v=2"></script>','<script src="lazy.js?v=11"></script><script src="app.js?v=11"></script>')
+s=s.replace("style.css?v=2", "style.css?v=11")
 path.write_text(s)
