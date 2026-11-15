@@ -25,13 +25,23 @@ doc = fitz.open(PDF)
 S = 'http://www.w3.org/2000/svg'
 XL = '{http://www.w3.org/1999/xlink}href'
 ns = {'s': S}
-# Image references belong to the November 2026 edition of Portfolio.pdf.
-# They identify background and decorative layers that should not open as work.
-decorative = [{246, 237, 252}, {70, 72}, {101}, {161, 163, 150}]
-backgrounds = [{230, 232, 255, 257, 259, 261, 235, 250, 253, 208}, {52, 54, 64, 66, 68, 29, 39, 49, 208}, {85, 87}, {133, 135, 148}]
+# Image references for the source PDF, grouped by page. The named decorations
+# carry the motion even when MuPDF assigns their clipping paths new IDs.
+decorations = [
+    {243: 'portfolio', 234: 'branding', 249: 'about'},
+    {70: 'print', 72: 'logos'},
+    {101: 'social'},
+    {161: 'thanks', 163: 'photography', 150: 'variety'},
+]
+backgrounds = [
+    {207, 227, 229, 232, 247, 251, 253, 255, 257},
+    {29, 39, 49, 52, 54, 64, 66, 68, 207},
+    {85, 87},
+    {133, 135, 148},
+]
 sections = [
     ('home', 'Portfolio', 0, 0),
-    ('about', 'About', 0, 1116),
+    ('about', 'About', 0, 2125),
     ('branding', 'Branding', 0, 3203),
     ('logos', 'Logofolio', 1, 0),
     ('print', 'Printables', 1, 3168),
@@ -62,7 +72,7 @@ def category(n, y):
     if y < 4800: return 'Photography & sketching'
     if y < 5600: return 'Blind Wave — CD cover'
     if y < 6600: return 'Song cover design'
-    if y < 10500: return 'Photography — Bar & restaurant'
+    if y < 10335: return 'Photography — Bar & restaurant'
     return 'Photography — Bakery'
 
 gallery = []
@@ -97,6 +107,9 @@ for n, page in enumerate(doc):
         xref = info['xref']
         image = refs[e.get(XL)[1:]] if ET.QName(e).localname == 'use' else e
         assert (int(image.get('width')), int(image.get('height'))) == (info['width'], info['height'])
+        if n == 1 and xref == 66:
+            # The typing animation uses pixel-aligned copies of this same image.
+            image.set(XL, 'assets/typewriter-highres.png')
         if xref in backgrounds[n]: continue
         top = e
         while top.getparent() is not content: top = top.getparent()
@@ -110,15 +123,15 @@ for n, page in enumerate(doc):
             ET.SubElement(cover, f'{{{S}}}image', {'id':'bk-teaser-image','x':'266','y':'1240','width':'1368','height':'490','preserveAspectRatio':'xMidYMid slice','clip-path':'url(#bk-teaser-clip)','href':'assets/bk/king-selection-01.webp'})
             content.replace(top, cover)
             continue
-        is_shape = xref in decorative[n]
+        decoration = decorations[n].get(xref)
         outer = ET.Element(f'{{{S}}}g')
         motion = ET.SubElement(outer, f'{{{S}}}g', {'class': 'motion-layer'})
         content.replace(top, outer)
         motion.append(top)
-        outer.set('class', 'floating-shape' if is_shape else 'artwork')
+        outer.set('class', 'floating-shape category-shape' if decoration else 'artwork')
         outer.set('data-bounds', json.dumps([round(v, 3) for v in info['bbox']]))
         outer.set('data-source-clip', top.get('clip-path', ''))
-        if not is_shape:
+        if not decoration:
             label = category(n, info['bbox'][1])
             outer.set('tabindex', '0')
             outer.set('role', 'button')
@@ -142,6 +155,7 @@ for n, page in enumerate(doc):
                     image.save(DIST / source, quality=90, method=4)
                 gallery.append({'key': key, 'page': n, 'xref': xref, 'label': label, 'source': source, 'y': info['bbox'][1], 'x': info['bbox'][0]})
         else:
+            outer.set('data-decoration', decoration)
             outer.set('aria-hidden', 'true')
     # Isolate turquoise vector stars, keeping their original labels stationary.
     for e in list(content.xpath('.//s:path[@fill="#46a3a2" or @fill="#45a2a1"]', namespaces=ns)):
@@ -189,7 +203,6 @@ for index, item in enumerate(gallery):
     template = template.replace(f'data-art-key="{item["key"]}"', f'data-gallery="{index}"')
 template = template.replace('/*GALLERY_DATA*/', json.dumps(gallery, ensure_ascii=False))
 template = template.replace('p2-bk-teaser', 'bk-teaser')
-template = template.replace('assets/1118042777feee34e7.webp', 'assets/typewriter-highres.png')
 (DIST / 'index.html').write_text(template)
 runpy.run_path(str(ROOT / 'insert_fence.py'))
 runpy.run_path(str(ROOT / 'optimize_site.py'))
