@@ -15,6 +15,8 @@ for page in doc:
   raw=base64.b64decode(href.split(',',1)[1]); digest=hashlib.sha256(raw).hexdigest()[:18]
   with Image.open(io.BytesIO(raw)) as pic:ext='.webp' if pic.mode in ('RGB','CMYK') else ('.jpg' if 'image/jpeg' in href[:30] else '.png')
   name=digest+ext;top,bottom=info['bbox'][1],info['bbox'][3]
+  if page.number == 1 and info['xref'] == 66:
+   name = 'typewriter-highres.png'
   if name in r:r[name]=(min(r[name][0],top),max(r[name][1],bottom))
   else:r[name]=(top,bottom)
  ranges.append(r)
@@ -28,5 +30,5 @@ def add(m):
    lo,hi=values[a.group(1)];return tag[:-2]+f' data-lazy-top="{lo:.1f}" data-lazy-bottom="{hi:.1f}"/>'
   return tag
  return re.sub(r'<image\b[^>]*/>',attach,block)
-text=re.sub(r'<section class="portfolio-page".*?</section>',add,text,flags=re.S);path.write_text(text)
+text=re.sub(r'<section class="portfolio-page\b[^\"]*"[^>]*>.*?</section>',add,text,flags=re.S);path.write_text(text)
 print('scroll-mapped images',text.count('data-lazy-top='))

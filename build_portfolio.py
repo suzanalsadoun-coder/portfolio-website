@@ -107,6 +107,8 @@ for n, page in enumerate(doc):
         xref = info['xref']
         image = refs[e.get(XL)[1:]] if ET.QName(e).localname == 'use' else e
         assert (int(image.get('width')), int(image.get('height'))) == (info['width'], info['height'])
+        if n == 0 and xref == 229:
+            image.set('data-cover-background', '')
         if n == 1 and xref == 66:
             # The typing animation uses pixel-aligned copies of this same image.
             image.set(XL, 'assets/typewriter-highres.png')
@@ -132,7 +134,7 @@ for n, page in enumerate(doc):
         outer.set('data-bounds', json.dumps([round(v, 3) for v in info['bbox']]))
         outer.set('data-source-clip', top.get('clip-path', ''))
         if not decoration:
-            label = category(n, info['bbox'][1])
+            label = 'Vinery — Social media' if n == 2 and xref == 98 else category(n, info['bbox'][1])
             outer.set('tabindex', '0')
             outer.set('role', 'button')
             outer.set('aria-label', 'Enlarge ' + label)
@@ -207,4 +209,5 @@ template = template.replace('p2-bk-teaser', 'bk-teaser')
 runpy.run_path(str(ROOT / 'insert_fence.py'))
 runpy.run_path(str(ROOT / 'optimize_site.py'))
 runpy.run_path(str(ROOT / 'annotate_lazy.py'))
+runpy.run_path(str(ROOT / 'organize_portfolio.py'))
 print(json.dumps({'pages':len(pages),'interactive_artworks':len(gallery),'raster_assets':len(list(ASSETS.iterdir())),'html_bytes':len(template.encode())}))

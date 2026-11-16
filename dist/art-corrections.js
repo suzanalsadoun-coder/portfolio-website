@@ -1,5 +1,5 @@
 // Reuse the original variety-section shape behind the print heading.
-(() => {
+function applyPrintShape() {
   const reference = document.querySelector('[data-decoration="variety"] .motion-layer');
   if (!reference) return;
   for (const node of reference.querySelectorAll('[mask]')) {
@@ -21,4 +21,16 @@
     }
     target.replaceChildren(group);
   }
-})();
+}
+
+const printIntro = document.querySelector('.print-intro');
+if (printIntro && 'IntersectionObserver' in window) {
+  const printObserver = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    printObserver.disconnect();
+    applyPrintShape();
+  }, {rootMargin: '1000px 0px'});
+  printObserver.observe(printIntro);
+} else {
+  applyPrintShape();
+}

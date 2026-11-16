@@ -45,4 +45,120 @@ body.motion-paused html{scroll-behavior:auto}.motion-paused .motion-layer,.motio
 .motion-paused .rotating-star{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){.rotating-star,.category-shape .motion-layer{animation:none!important;transform:none!important}}
 /* A soft blue sky blends into the existing trees; the fence remains untouched. */
-.fence-new-sky{position:absolute;inset:0 0 53% 0;pointer-events:none;background:url('assets/fence-sky-blue.png') center center / 100% 100% no-repeat;mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 100%)}
+.fence-new-sky{position:absolute;inset:0 0 53% 0;pointer-events:none;background-position:center;background-size:100% 100%;background-repeat:no-repeat;mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 100%)}
+.fence-feature.is-near .fence-new-sky{background-image:url('assets/fence-sky-blue.png')}
+.fence-feature:not(.is-near) .fence-track{animation-play-state:paused}
+
+.portfolio-slice {
+  overflow: hidden;
+}
+
+#portfolio.social-paper,
+.social-paper {
+  background: #f4e6d5 url('assets/social-paper.webp') repeat;
+  color: #272725;
+}
+
+.social-paper .portfolio-art {
+  background: transparent;
+}
+
+.social-projects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2.3vw, 36px);
+  padding: 1% 14% 3.75%;
+  scroll-margin-top: 12px;
+}
+
+.social-card {
+  display: flex;
+  flex-direction: column;
+  background: #f5e7d8;
+  border: 1px solid #887869;
+  border-radius: 15px;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.social-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 520 / 360;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+.social-card > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: clamp(12px, 1.5vw, 22px);
+  line-height: 1.2;
+}
+
+.social-card:hover > span {
+  background: #46a3a2;
+}
+
+.social-project-page {
+  background: #f4e6d5 url('assets/social-paper.webp') repeat;
+}
+
+.social-project-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 7%;
+  background: #272725;
+  color: var(--cream);
+}
+
+.social-project-header a {
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.social-project-title {
+  margin: 0;
+  padding: clamp(24px, 4vw, 64px) 8% 0;
+  font-size: clamp(28px, 5.5vw, 94px);
+  font-weight: 500;
+}
+
+.variety-video {
+  padding: 3% 0;
+  background: #171717 url('assets/variety-paper.webp') repeat;
+}
+
+.variety-video figure {
+  position: relative;
+  width: 61%;
+  margin: 0 auto;
+  background: url('assets/variety-stamp.svg') center / 100% 100% no-repeat;
+}
+
+.variety-video video {
+  position: absolute;
+  top: 6%;
+  left: 4%;
+  width: 92%;
+  height: 88%;
+  object-fit: contain;
+  background: #131313;
+}
+
+@media (max-width: 660px) {
+  .social-projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 1% 9% 5%;
+  }
+
+}

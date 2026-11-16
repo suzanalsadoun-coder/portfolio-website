@@ -1,7 +1,20 @@
 // Load visible artwork and nearby images before the viewer reaches them.
 const pendingSections = [...document.querySelectorAll('.portfolio-page')];
-function loadPortfolioImages() {
- const margin = 1200;
+const coverImage = document.querySelector('[data-cover-background]');
+const coverSmall = window.matchMedia('(max-width: 640px)');
+const coverMedium = window.matchMedia('(max-width: 1100px)');
+const imageNamespace = 'http://www.w3.org/1999/xlink';
+
+function loadCoverBackground() {
+ if (!coverImage) return;
+ const resource = coverSmall.matches ? coverImage.dataset.coverSmall
+  : coverMedium.matches ? coverImage.dataset.coverMedium : coverImage.dataset.coverFull;
+ if (coverImage.getAttributeNS(imageNamespace, 'href') !== resource) {
+  coverImage.setAttributeNS(imageNamespace, 'xlink:href', resource);
+ }
+}
+
+function loadPortfolioImages(margin = 1200) {
  for (const section of pendingSections) {
   const svg = section.querySelector('svg.portfolio-art');
   if (!svg) continue;
@@ -14,7 +27,7 @@ function loadPortfolioImages() {
     const bottom = Math.min(+image.dataset.lazyBottom, view.y + view.height);
     if (bottom <= top || bounds.top + (bottom - view.y) * scale < -margin || bounds.top + (top - view.y) * scale > innerHeight + margin) continue;
    }
-   image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', image.dataset.lazyHref);
+   image.setAttributeNS(imageNamespace, 'xlink:href', image.dataset.lazyHref);
    image.removeAttribute('data-lazy-href');
   }
  }
@@ -26,5 +39,16 @@ function queuePortfolioImages() {
  requestAnimationFrame(() => { portfolioLoadQueued = false; loadPortfolioImages(); });
 }
 window.addEventListener('scroll', queuePortfolioImages, {passive:true});
-window.addEventListener('resize', queuePortfolioImages);
-loadPortfolioImages();
+window.addEventListener('resize', () => { loadCoverBackground(); queuePortfolioImages(); });
+loadCoverBackground();
+loadPortfolioImages(400);
+
+const fenceFeature = document.querySelector('.fence-feature');
+if (fenceFeature && 'IntersectionObserver' in window) {
+ const fenceObserver = new IntersectionObserver(([entry]) => {
+  fenceFeature.classList.toggle('is-near', entry.isIntersecting);
+ }, {rootMargin: '600px 0px'});
+ fenceObserver.observe(fenceFeature);
+} else {
+ fenceFeature?.classList.add('is-near');
+}
