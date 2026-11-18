@@ -154,7 +154,7 @@ if(socialSvg){
 const bkAnchor=document.createElementNS(svgNS,'a');bkAnchor.setAttribute('href','burger-king.html');bkAnchor.setAttribute('aria-label','Explore Burger King work');
 const bkHit=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:266,y:1240,width:1368,height:490,rx:52,fill:'transparent'}))bkHit.setAttribute(k,v);bkAnchor.append(bkHit);socialSvg.append(bkAnchor);
 const bkPreview=document.querySelector('#bk-teaser-image');
-const bkPreviews=['king-selection-01','calendar-11','digital-menu-01','packaging-collection-v2','world-cup-03'];
+const bkPreviews=['king-selection-01','calendar-11','digital-menu-01','packaging-selection-new','world-cup-03'];
 let bkIndex=0;
 if(bkPreview&&!reduced.matches)setInterval(()=>{
  const bounds=bkAnchor.getBoundingClientRect();
