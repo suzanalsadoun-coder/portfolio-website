@@ -6,7 +6,37 @@ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
 let paused=reduced.matches;
 try{paused=paused||localStorage.getItem('portfolio-motion')==='paused'}catch{}
 const motionButton=document.querySelector('#motion-toggle');
-function updateMotion(){document.documentElement.classList.toggle('motion-paused',paused);for(const svg of document.querySelectorAll('.portfolio-art')){if(paused)svg.pauseAnimations();else svg.unpauseAnimations()}motionButton.setAttribute('aria-pressed',String(paused));motionButton.setAttribute('aria-label',paused?'Resume motion':'Pause motion');motionButton.title=paused?'Resume motion':'Pause motion';motionButton.querySelector('svg').innerHTML=paused?'<path d="m9 5 10 7-10 7Z"/>':'<path d="M9 5v14M15 5v14"/>'}
+const varietyVideo=document.querySelector('.variety-video video');
+let varietyVideoVisible=false;
+function updateVarietyVideo(){
+ if(!varietyVideo)return;
+ if(varietyVideoVisible&&!paused&&!reduced.matches&&!document.hidden) {
+  varietyVideo.play().catch(()=>{});
+ } else {
+  varietyVideo.pause();
+ }
+}
+if(varietyVideo){
+ if('IntersectionObserver' in window){
+  const videoObserver=new IntersectionObserver(([entry])=>{
+   varietyVideoVisible=entry.isIntersecting&&entry.intersectionRatio>=.2;
+   updateVarietyVideo();
+  },{threshold:.2});
+  videoObserver.observe(varietyVideo);
+ } else {
+  const checkVideoPosition=()=>{
+   const bounds=varietyVideo.getBoundingClientRect();
+   varietyVideoVisible=bounds.bottom>0&&bounds.top<innerHeight;
+   updateVarietyVideo();
+  };
+  window.addEventListener('scroll',checkVideoPosition,{passive:true});
+  window.addEventListener('resize',checkVideoPosition);
+  checkVideoPosition();
+ }
+ document.addEventListener('visibilitychange',updateVarietyVideo);
+ reduced.addEventListener('change',updateVarietyVideo);
+}
+function updateMotion(){document.documentElement.classList.toggle('motion-paused',paused);for(const svg of document.querySelectorAll('.portfolio-art')){if(paused)svg.pauseAnimations();else svg.unpauseAnimations()}motionButton.setAttribute('aria-pressed',String(paused));motionButton.setAttribute('aria-label',paused?'Resume motion':'Pause motion');motionButton.title=paused?'Resume motion':'Pause motion';motionButton.querySelector('svg').innerHTML=paused?'<path d="m9 5 10 7-10 7Z"/>':'<path d="M9 5v14M15 5v14"/>';updateVarietyVideo()}
 // The wave filter affects only the isolated background shape, never the lettering.
 for(const [index,shape] of shapeNodes.filter(n=>n.classList.contains('category-shape')).entries()){
  const svg=shape.ownerSVGElement,defs=svg.querySelector('defs'),ns='http://www.w3.org/2000/svg',id=`liquid-wave-${index}`;
@@ -24,7 +54,7 @@ for(const path of document.querySelectorAll('.portfolio-art path[fill="#44a5a2"]
 updateMotion();motionButton.addEventListener('click',()=>{paused=!paused;updateMotion();try{localStorage.setItem('portfolio-motion',paused?'paused':'on')}catch{}});
 
 // Use the actual PDF clipping bounds, so cropped mockups pivot about their visible centre.
-for(const node of [...artworkNodes,...shapeNodes]){
+for(const node of [...artworkNodes,...shapeNodes].filter(node=>node.ownerSVGElement)){
   let b=JSON.parse(node.dataset.bounds);
   const clipId=node.dataset.sourceClip?.match(/url\(#([^)]*)\)/)?.[1];
   const path=clipId?document.getElementById(clipId)?.firstElementChild:null;
@@ -48,16 +78,20 @@ const brandLogoRegions=[
  {id:'misk',name:'Misk',bounds:[300,8950,850,9400],from:'translateX(-25px)'},
  {id:'evar',name:'Evar',bounds:[300,11150,850,11650],from:'translateY(22px) scale(.95)'}
 ];
+function setupBrandLogos(){
 const brandingSvg=document.querySelector('.portfolio-art');
 const brandingContent=brandingSvg.querySelector(':scope > g');
 const svgRect=brandingSvg.getBoundingClientRect();
 const svgWidth=Number(brandingSvg.getAttribute('viewBox').split(/\s+/)[2]);
 const coordinateScale=svgWidth/svgRect.width;
-const logoCandidates=[...brandingContent.querySelectorAll('path,use')];
+const logoCandidates=[...brandingContent.querySelectorAll('path,use')].map(part=>{
+  const box=part.getBoundingClientRect();
+  return {part,box};
+});
 const brandLogoNodes=[];
 for(const brand of brandLogoRegions){
   const [x0,y0,x1,y1]=brand.bounds;
-  const parts=logoCandidates.filter(part=>{const r=part.getBoundingClientRect();const x=(r.left-svgRect.left)*coordinateScale,y=(r.top-svgRect.top)*coordinateScale;return r.width>0&&r.height>0&&x>=x0&&y>=y0&&x+r.width*coordinateScale<=x1&&y+r.height*coordinateScale<=y1});
+  const parts=logoCandidates.filter(({box})=>{const x=(box.left-svgRect.left)*coordinateScale,y=(box.top-svgRect.top)*coordinateScale;return box.width>0&&box.height>0&&x>=x0&&y>=y0&&x+box.width*coordinateScale<=x1&&y+box.height*coordinateScale<=y1}).map(({part})=>part);
   const parents=[...new Set(parts.map(part=>part.parentElement))];
   for(const parent of parents){
     const siblings=parts.filter(part=>part.parentElement===parent);
@@ -67,6 +101,17 @@ for(const brand of brandLogoRegions){
   }
 }
 if('IntersectionObserver' in window){const logosObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){entry.target.classList.add('logo-revealed');logosObserver.unobserve(entry.target)}}},{threshold:.25,rootMargin:'0px 0px -8% 0px'});for(const logo of brandLogoNodes)logosObserver.observe(logo)}else{for(const logo of brandLogoNodes)logo.classList.add('logo-revealed')}
+}
+
+const brandingMarker=document.querySelector('#branding');
+if(brandingMarker&&'IntersectionObserver' in window){
+ const brandingObserver=new IntersectionObserver(([entry])=>{
+  if(!entry.isIntersecting)return;
+  brandingObserver.disconnect();
+  setupBrandLogos();
+ },{rootMargin:'1800px 0px'});
+ brandingObserver.observe(brandingMarker);
+}else if(brandingMarker)setupBrandLogos();
 
 const dialog=document.querySelector('#gallery-dialog');
 const stage=document.querySelector('#viewer-image');
@@ -85,6 +130,7 @@ let touchX=null;stage.addEventListener('touchstart',e=>{touchX=e.changedTouches[
 const markers=[...document.querySelectorAll('.section-marker')];
 const links=[...document.querySelectorAll('.section-links a')];
 const progress=document.querySelector('.reading-progress span');
+if(markers.length&&progress){
 let scrollQueued=false;
 function updateScroll(){scrollQueued=false;const max=document.documentElement.scrollHeight-innerHeight;progress.style.transform=`scaleX(${max?Math.min(1,window.scrollY/max):0})`;let active=markers[0];for(const m of markers){if(m.getBoundingClientRect().top<innerHeight*.38)active=m}for(const link of links){if(link.hash==='#'+active.id)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current')}document.querySelector('#current-section').textContent=active.dataset.name}
 window.addEventListener('scroll',()=>{if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll)}},{passive:true});window.addEventListener('resize',updateScroll);updateScroll();
@@ -92,6 +138,7 @@ const dock=document.querySelector('.dock'),menu=document.querySelector('.mobile-
 for(const link of links)link.addEventListener('click',()=>{dock.classList.remove('menu-open');menu.setAttribute('aria-expanded','false')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){dock.classList.remove('menu-open');menu.setAttribute('aria-expanded','false')}});
 const tip=document.querySelector('.intro-tip');function dismissTip(){tip.classList.add('dismissed');setTimeout(()=>tip.remove(),600)}tip.querySelector('button').addEventListener('click',dismissTip);setTimeout(dismissTip,9000);
+}
 
 // Make the original contact block and the small header navigation clickable.
 function addLink(svg,x,y,width,height,url,label){const a=document.createElementNS(svgNS,'a');a.setAttribute('href',url);a.setAttribute('aria-label',label);const rect=document.createElementNS(svgNS,'rect');for(const [key,val] of Object.entries({x,y,width,height,fill:'transparent'}))rect.setAttribute(key,val);a.append(rect);svg.append(a)}
@@ -103,9 +150,19 @@ if('IntersectionObserver' in window){const observer=new IntersectionObserver(ent
 
 // The cover opens the Burger King collection; its original logo stays above the rotating work.
 const socialSvg=document.querySelector('[data-page="2"] .portfolio-art');
+if(socialSvg){
 const bkAnchor=document.createElementNS(svgNS,'a');bkAnchor.setAttribute('href','burger-king.html');bkAnchor.setAttribute('aria-label','Explore Burger King work');
 const bkHit=document.createElementNS(svgNS,'rect');for(const [k,v] of Object.entries({x:266,y:1240,width:1368,height:490,rx:52,fill:'transparent'}))bkHit.setAttribute(k,v);bkAnchor.append(bkHit);socialSvg.append(bkAnchor);
-const bkPreview=document.querySelector('#bk-teaser-image');const bkPreviews=['king-selection-01','calendar-11','digital-menu-01','packaging-collection-v2','world-cup-03'];let bkIndex=0;if(!reduced.matches)setInterval(()=>{if(!paused&&!document.hidden){bkIndex=(bkIndex+1)%bkPreviews.length;bkPreview.setAttribute('href',`assets/bk/${bkPreviews[bkIndex]}.webp`)}},4500);
+const bkPreview=document.querySelector('#bk-teaser-image');
+const bkPreviews=['king-selection-01','calendar-11','digital-menu-01','packaging-collection-v2','world-cup-03'];
+let bkIndex=0;
+if(bkPreview&&!reduced.matches)setInterval(()=>{
+ const bounds=bkAnchor.getBoundingClientRect();
+ if(paused||document.hidden||bounds.bottom<=0||bounds.top>=innerHeight)return;
+ bkIndex=(bkIndex+1)%bkPreviews.length;
+ bkPreview.setAttribute('href',`assets/bk/${bkPreviews[bkIndex]}.webp`);
+},4500);
+}
 
 // Animate small copies of the actual typewriter keys as if someone is typing.
 const typewriterSvg=document.querySelector('.print-rest .portfolio-art');
