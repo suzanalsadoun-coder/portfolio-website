@@ -195,7 +195,7 @@ def project_html(title, content, artworks):
   {viewer}
   <script id="gallery-data" type="application/json">{json.dumps(artworks, ensure_ascii=False)}</script>
   <script src="lazy.js?v=15"></script>
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>
 '''

@@ -49,6 +49,6 @@ source = source.replace('<img class="fence-background"',
                         '<img loading="lazy" width="15624" height="2064" class="fence-background"')
 source = source.replace('<img src="assets/fence-strip.webp"', '<img loading="lazy" src="assets/fence-strip.webp"')
 source = source.replace('<script src="app.js?v=2"></script>',
-                        '<script src="art-corrections.js?v=14"></script><script src="lazy.js?v=15"></script><script src="app.js?v=16"></script>')
+                        '<script src="art-corrections.js?v=14"></script><script src="lazy.js?v=15"></script><script src="app.js?v=17"></script>')
 source = source.replace('style.css?v=2', 'style.css?v=16')
 path.write_text(source)
