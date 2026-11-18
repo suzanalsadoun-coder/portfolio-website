@@ -238,10 +238,10 @@ projects = [
     ('shams-tv', 'Shams TV', ((1915, 3420),), 'Shams TV — Social media'),
     ('kurdistan-islamic-bank', 'Kurdistan Islamic Bank', ((3420, 4230),), 'Kurdistan Islamic Bank — Social media'),
     ('awamedica', 'Awamedica', ((4230, 5050),), 'Awamedica — Social media'),
-    ('restaurants', 'restaurants', ((6060, 8350), (9610, 10675), (5050, 6060)), 'Jazz Bar — Social media'),
-    ('flights', 'flights', ((8350, 8960),), 'Dream Holidays — Social media'),
-    ('tconstruc', 'tconstruc', ((8960, 9610),), 'Ninth Art — Social media'),
-    ('verity', 'verity', ((10675, social_end),), 'Ninth Art — Grid posts'),
+    ('restaurants', 'Restaurants', ((6060, 8350), (9610, 10675), (5050, 6060)), 'Jazz Bar — Social media'),
+    ('flights', 'Flights', ((8350, 8960),), 'Dream Holidays — Social media'),
+    ('tconstruc', 'Construct', ((8960, 9610),), 'Ninth Art — Social media'),
+    ('verity', 'Verity', ((10675, social_end),), 'Ninth Art — Grid posts'),
 ]
 cards = []
 for slug, title, ranges, artwork_label in projects:
